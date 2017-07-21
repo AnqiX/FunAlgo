@@ -16,7 +16,7 @@ def kosaraju():
         if temp[0] not in scc_dic:
             scc_dic[temp[0]] = [temp[1]]
         else:
-            scc_dic[temp[0]].append(temp[1])
+            scc_dic[temp[0]] = [temp[1]] + scc_dic[temp[0]] 
 
     keyList = list(scc_dic.keys())
     for row in ori_data:
@@ -31,7 +31,7 @@ def kosaraju():
     newOrder = []
     for row in sortedFinishTimeDic:
         newOrder.append(row[0])
-    #print('new order', newOrder)
+    #print("new order: ", newOrder)
     secondResult = DFS(scc_dic, newOrder)
     leaderArray = secondResult[1]
 
@@ -42,7 +42,6 @@ def kosaraju():
             rootDic[root].append(node)
         else:
             rootDic[root] = [node]
-    #print(rootDic)
 
     lengthArray = []
     for component in rootDic:
@@ -51,50 +50,61 @@ def kosaraju():
     rawLength = sorted(lengthArray, key=int, reverse=True)[:5]
     for i in range (0, 5-len(rawLength)):
         rawLength.append(0)
+    #print(rootDic)
     return rawLength       
 
 def DFS(scc_dic, order):
     ###### forming the Grev ####
+    #print(scc_dic)
     revscc_dic = {}
     maxKey = 0
-    for key in scc_dic:
-        temps = scc_dic[key]
-        if key > maxKey:
-            maxKey = key
-        for temp in temps:
-            if temp not in revscc_dic:
-                revscc_dic[temp] = [key]
-            else:
-                revscc_dic[temp].append(key)
-    #print(order)
-    #print('revscc_dic: ', revscc_dic)
+
     ##### iterative dfs (with finish times) ####
     path = []
     time = 0
     finish_time_dic = {}
     leader = {}
+    filledLevelCount = 0
+    levelDic = {}
+    levelDic[0] = 0
+    root = [order[0]]
+    pushRoot = False
+    immediateParent = {}
+    immediateParent[order[0]] = 0
     for i in order:
         start = i
         q = [start]
         while q:
             v = q.pop(0)
-            #print(v)
-            if v not in path and v in revscc_dic:
+            if v not in path and v in scc_dic:
                 path.append(v)
+                if pushRoot:
+                    root.append(v)
+                    pushRoot = False
+                levelDic[v] = len(scc_dic[v])
                 q = [v] + q
-                #print(v, revscc_dic[v])
-                for w in revscc_dic[v]:
-                    if w not in path: q = [w] + q
+                #print(v, scc_dic[v], root)
+                for w in scc_dic[v]:
+                    if w not in path:
+                        q = [w] + q
+                        immediateParent[w] = v
             else:
-                if v not in revscc_dic:
-                    #print(v)
+                if v not in scc_dic:
                     path.append(v)
                 if v not in finish_time_dic:
-                    #print('finish: ', v, 'root: ', path[len(path)-1])
-                    leader[v] = path[len(path)-1]
+                    #print(v, 'root: ', root[len(root)-1])
+                    leader[v] = root[len(root)-1]
                     finish_time_dic[v] = time
                     time += 1
                     
+                    if v in immediateParent:
+                        #print('v: ', v, 'parent: ', immediateParent[v], ", compare: ", time, levelDic[immediateParent[v]], '####')
+                        if time == levelDic[immediateParent[v]] or order.index(v) == 0:
+                            pushRoot = True
+                    else:
+                        pushRoot = True
+
+    #print('levelDic: ', levelDic)
     return [finish_time_dic, leader]
 
 

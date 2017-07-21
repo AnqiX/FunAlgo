@@ -8,7 +8,7 @@ sys.setrecursionlimit(4000000)
 print('started')
 
 
-with open("testCase.txt") as textFile:
+with open("smallArray.txt") as textFile:
     lines = [line.split() for line in textFile]
 
 #lines = [line.split() for line in data]
@@ -46,11 +46,11 @@ def kosaraju(lines):
     for key in fArray:
         newOrder.append(fArray[key])
 
-    #print(newOrder)
+    print("new order: ", newOrder)
     
     for i in newOrder:
         if i not in explored:
-            #print('start node: ', i)
+            print('start node: ', i)
             s = i
             DFS(graph, i)
 
@@ -63,7 +63,7 @@ def kosaraju(lines):
             formattedLeader[root] = [node]
         else:
             formattedLeader[root].append(node)
-    #print(formattedLeader)
+    print(formattedLeader)
     lengthArray = []
     for component in formattedLeader:
         lengthArray.append(len(formattedLeader[component]))
@@ -78,15 +78,16 @@ def DFS(graph, i):
 
     explored[i] = True 
     leader[i] = s
-    #print('DFS input: ', i)
+    print(i, 'root: ', s)
     if i in graph:
         
         neighbors = graph[i]
 
-        #print(i, 'neigbors: ', neighbors)
+        print(i, 'neigbors: ', neighbors)
         
         for j in neighbors:
             if j not in explored:
+                print(j, 'not in explored: ', explored)
                 DFS(graph, j)
     t += 1
     fArray[t] = i
